@@ -1,0 +1,20 @@
+local WeaponStore = {}
+
+WeaponStore.Assault = {
+	{ Name = "AK-47", Info = "Súng trường tấn công huyền thoại:)) ", Model = "Ak" },
+	{ Name = "M4A1", Info = "Tốc độ bắn cao, ổn định",Model = "2" },
+}
+
+WeaponStore.Recond = {
+	{ Name = "AWP", Info = "Sát thương cao, tốc độ bắn chậm" },
+}
+
+WeaponStore.Scout = {
+	{ Name = "MP5", Info = "Nhẹ, tốc độ di chuyển cao" },
+}
+
+WeaponStore.Support = {
+	{ Name = "M249", Info = "Đạn nhiều, thích hợp hỗ trợ" },
+}
+
+return WeaponStore 
