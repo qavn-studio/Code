@@ -1,1 +1,126 @@
----
+--Phan 1: khai bao cac bien------------------------------------------------------------------------------------
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local WeaponStore = require(script.Parent:WaitForChild("WeaponStoreModule"))
+-- chi tiet
+local WeaponSelecGui = script.Parent
+local Category = WeaponSelecGui:WaitForChild("Category")
+local List = WeaponSelecGui:WaitForChild("List")
+local ScrollingFrame = List.BGFrame:WaitForChild("ScrollingFrame")
+local InfoFrame = WeaponSelecGui:WaitForChild("Info")
+local InfoText = InfoFrame.ImageLabel:WaitForChild("TextInfo")
+local ViewFrame = WeaponSelecGui:WaitForChild("ViewGunFrame")
+-- Folder chu model sung
+local WeaponModels = ReplicatedStorage:WaitForChild("Gun")
+--button -----------------------------------------------------
+local buttons = {
+	Assault = Category:WaitForChild("Assault_Button"),
+	Recond = Category:WaitForChild("Recond_Button"),
+	Scout = Category:WaitForChild("Scout_Button"),
+	Support = Category:WaitForChild("Support_Button"),
+}
+local Equit_button = WeaponSelecGui:WaitForChild("Equit_Button")
+---------------------------------------------------------------
+local camera = Instance.new("Camera")
+camera.Parent = ViewFrame
+ViewFrame.CurrentCamera = camera
+
+-- Bien luuw model
+local currentModel = nil
+
+local RunService = game:GetService("RunService")-- Xoay model
+RunService.RenderStepped:Connect(function(dt)
+	if currentModel and currentModel.PrimaryPart then
+		currentModel:SetPrimaryPartCFrame(
+			currentModel.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(30) * dt, 0)
+		)
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------
+
+-- Phan 2: Main------------------------------------------------------------------------------------------------
+
+local function ClearList() -- Ham xoa danh sach ten sung
+	for _, child in ipairs(ScrollingFrame:GetChildren()) do 
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+end
+
+local function ClearModel()-- Ham xao model sung trc do
+	for _, obj in ipairs(ViewFrame:GetChildren()) do
+		if obj:IsA("Model") then
+			obj:Destroy()
+		end
+	end
+	currentModel = nil
+end
+
+-- Model-------------------------------------------------------------------------------------
+local function showWeaponModel(weaponName)
+	ClearModel()
+
+	local model = WeaponModels:FindFirstChild(weaponName)
+	if model then
+		local clone = model:Clone()
+		clone:SetPrimaryPartCFrame(CFrame.new(0, 0, 0))
+		clone.Parent = ViewFrame
+
+		local size = clone:GetExtentsSize().Magnitude
+		camera.CFrame = CFrame.new(Vector3.new(0, 0, size * 0.7), Vector3.new(0, 0, 0))
+
+		currentModel = clone
+	end
+end
+----------------------------------------------------------------------------------------------
+
+-- List-------------------------------------------------------
+local function DisplayWeapons(className)
+	ClearList()
+	local list = WeaponStore[className]
+	if not list then return end
+
+	for _, weapon in ipairs(list) do
+		-- tao cai nut cua list (du theo cua og LinhNQ)
+		local Class_button = Instance.new("TextButton")
+		Class_button.Size = UDim2.new(0.9, 0,0.05, 0)
+		Class_button.BackgroundColor3 = Color3.fromRGB(48,48,48)
+		Class_button.BorderColor3= Color3.fromRGB(0,0,0)
+		Class_button.Text = weapon.Name
+		Class_button.TextColor3 = Color3.fromRGB(236, 236, 236)
+		Class_button.Font = Enum.Font.SourceSansBold
+		Class_button.TextSize = 20
+		Class_button.Parent = ScrollingFrame
+
+		local Uicorner = Instance.new("UICorner")
+		Uicorner.Parent = Class_button
+		Uicorner.CornerRadius = UDim.new(0, 2)
+
+		local UiStrole1 = Instance.new("UIStroke")
+		UiStrole1.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+		UiStrole1.Color = Color3.fromRGB(170,255,255)
+		UiStrole1.Thickness = 2
+		UiStrole1.Parent = Class_button
+
+		local UiStrole2 = Instance.new("UIStroke")
+		UiStrole2.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+		UiStrole2.Color = Color3.fromRGB(170,255,255)
+		UiStrole2.Thickness = 2
+		UiStrole2.Parent = Class_button
+
+		Class_button.MouseButton1Click:Connect(function()
+			InfoText.Text = weapon.Info 
+			showWeaponModel(weapon.Model)
+		end)
+	end
+end
+---------------------------------------------------------------
+
+for name, btn in pairs(buttons) do
+	btn.MouseButton1Click:Connect(function()
+		Equit_button.Visible = true
+		DisplayWeapons(name)
+	end)
+end
+
